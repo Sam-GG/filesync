@@ -1,0 +1,4 @@
+path: C:\your\path\to\file\here\
+filename: file.sav
+server: https://exampleserver/files/ 
+rate: 30                        
