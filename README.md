@@ -1,0 +1,1 @@
+This is mostly a file dump of this simple file sync app I wrote so that I don't lose it. If someone comes across this, you can configure filepath, filename, server address and poll rate in the config.txt file for your own usage.
