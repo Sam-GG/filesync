@@ -23,9 +23,9 @@ def get_utc_timestamp(file_path):
 def construct_headers():
     """ Construct headers for HTTP requests """
     return {
-        "ngrok-skip-browser-warning": "true",
         "User-Agent": "Mozilla/5.0 (compatible; YourScript/1.0)"
     }
+
 
 def handle_redirects(url, headers, redirect_limit=5):
     """ Handle HTTP redirects """
@@ -46,15 +46,17 @@ def get_server_file_modified_time(url):
     """ Get the last modified time of the server file """
     headers = construct_headers()
     try:
-        response = handle_redirects(url, headers)
-        if response.status == 200 and 'Last-Modified' in response.headers:
+        response = requests.head(url, headers=headers, allow_redirects=True) 
+        if response.status_code == 200 and 'Last-Modified' in response.headers:
             server_time = datetime.strptime(response.headers['Last-Modified'], '%a, %d %b %Y %H:%M:%S GMT')
             return server_time.replace(tzinfo=timezone.utc).timestamp()
         else:
+            print(f"No Last-Modified header in response. Status: {response.status_code}")
             return None
     except Exception as e:
-        print(f"Error getting server file modified time: {e}")
+        print(f"Error getting server file modified time: {e}. URL: {url}")
         return None
+
 
 def download_file(url, local_file_path):
     """ Download the file from the server """
@@ -88,7 +90,6 @@ def check_and_update_file(local_file_path, server_url):
     local_file_modified_time = get_utc_timestamp(local_file_path)
     server_file_modified_time = get_server_file_modified_time(server_url)
 
-    # Compare the timestamps
     if server_file_modified_time is not None:
         time_difference = local_file_modified_time - server_file_modified_time
         if abs(time_difference) <= int(config['rate'])+10:
